@@ -111,8 +111,8 @@ export const useSpacecraftControls = () => {
 
   const updateMovement = (delta: number) => {
     // Base movement parameters
-    const acceleration = 8; // Reduced from 20
-    const maxSpeed = controls.current.boost ? 12 : 6; // Reduced from 30/15
+    const acceleration = 2; // Reduced from 20
+    const maxSpeed = controls.current.boost ? 2 : 1; // Reduced from 30/15
     const dampening = 0.98;
     const rotationSpeed = 1.5;
     const rotationDampening = 0.95;

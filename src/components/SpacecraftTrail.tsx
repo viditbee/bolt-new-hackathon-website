@@ -15,7 +15,7 @@ const trailVertexShader = `
     vUv = uv;
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = 3.0;
+    gl_PointSize = 6.0;
   }
 `;
 
@@ -41,7 +41,7 @@ export interface SpacecraftTrailRef {
   updateTrail: (position: THREE.Vector3, velocity: THREE.Vector3) => void;
 }
 
-const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({ 
+const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({
   maxPoints = 150
 }, ref) => {
   const trailRef = useRef<THREE.Points>(null);
@@ -57,17 +57,17 @@ const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({
     const colors = new Float32Array(maxPoints * 3);
     const alphas = new Float32Array(maxPoints);
     const uvs = new Float32Array(maxPoints * 2);
-    
+
     // Initialize arrays
     for (let i = 0; i < maxPoints; i++) {
       positions[i * 3] = 0;
       positions[i * 3 + 1] = 0;
       positions[i * 3 + 2] = 0;
-      
+
       colors[i * 3] = 0;
       colors[i * 3 + 1] = 0.95;
       colors[i * 3 + 2] = 1;
-      
+
       alphas[i] = 0;
       uvs[i * 2] = i / maxPoints;
       uvs[i * 2 + 1] = 0;
@@ -100,18 +100,18 @@ const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({
     updateTrail: (position: THREE.Vector3, velocity: THREE.Vector3) => {
       // Add new point
       pointsRef.current.unshift(position.clone());
-      
+
       // Calculate color based on velocity
       const speed = velocity.length();
       const color = new THREE.Color();
-      if (speed > 15) {
+      if (speed > 2) {
         color.setHSL(0.7, 1, 0.5); // Purple for high speed
-      } else if (speed > 8) {
+      } else if (speed > 1) {
         color.setHSL(0.6, 1, 0.5); // Blue for medium speed
       } else {
         color.setHSL(0.5, 1, 0.5); // Cyan for low speed
       }
-      
+
       colorsRef.current.unshift(color);
       alphasRef.current.unshift(1);
 
@@ -130,15 +130,15 @@ const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({
       for (let i = 0; i < pointsRef.current.length; i++) {
         const point = pointsRef.current[i];
         const color = colorsRef.current[i];
-        
+
         positions[i * 3] = point.x;
         positions[i * 3 + 1] = point.y;
         positions[i * 3 + 2] = point.z;
-        
+
         colors[i * 3] = color.r;
         colors[i * 3 + 1] = color.g;
         colors[i * 3 + 2] = color.b;
-        
+
         // Update alpha with smooth fade out
         alphasRef.current[i] *= 0.97;
         alphas[i] = alphasRef.current[i] * Math.sin(Math.PI * (i / pointsRef.current.length));
@@ -152,11 +152,11 @@ const SpacecraftTrail = forwardRef<SpacecraftTrailRef, SpacecraftTrailProps>(({
 
   useFrame((state) => {
     if (!trailRef.current) return;
-    
+
     // Update time uniform for animation
     timeRef.current += state.clock.getDelta();
     material.uniforms.time.value = timeRef.current;
-    
+
     // Update alpha values with wave effect
     const alphas = geometry.attributes.alpha.array as Float32Array;
     for (let i = 0; i < alphasRef.current.length; i++) {
